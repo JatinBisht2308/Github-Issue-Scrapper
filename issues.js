@@ -4,7 +4,8 @@ const fs = require("fs");
 const path = require("path");
 const pdfkit = require("pdfkit");
 const doc = require("pdfkit");
-
+const chalk = require("chalk");
+const { data } = require("cheerio/lib/api/attributes");
 function getTheIssues(url, repoNamePdf, pdfPath) {
   //    console.log(url);
   request(url, cb);
@@ -36,7 +37,7 @@ function getTheIssues(url, repoNamePdf, pdfPath) {
       let issueData = selector(issuesArray[i]).text();
       //   console.log(issueData);
       finalData.push(issueData);
-      finalData.push("->");
+    //   finalData.push("->");
       let issueLink =
         "https://github.com" + selector(issuesArray[i]).attr("href");
       // console.log(issueLink);
@@ -44,9 +45,31 @@ function getTheIssues(url, repoNamePdf, pdfPath) {
     }
     let doc = new pdfkit
     doc.pipe(fs.createWriteStream(pdfPath));
-    let data = JSON.stringify(finalData);
-    doc.text(data);
+    // let data = JSON.stringify(finalData);
+
+    // console.log(finalData);
+    // doc.fontSize(20).text(data, 100, 100);
+    let count =1;
+    doc.fontSize(50).text(repoNamePdf);
+    for(let i = 0; i < finalData.length; i++)
+    {
+        // doc.text();
+        let data = JSON.stringify(finalData[i].trim());
+        if((i+1)%2!=0)
+        {
+            dataNotLink = count + ")- " + data;
+            doc.fontSize(20).text(dataNotLink);
+            count++;
+        }
+        else{
+            // data = chalk.red(data);
+            doc.fontSize(15).text(data);
+        }
+        // console.log(data);
+
+    }
     doc.end();
+
   }
 }
 
